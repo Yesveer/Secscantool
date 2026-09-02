@@ -1,0 +1,18 @@
+name: secscantool
+arch: __ARCH__
+platform: linux
+version: __VERSION__
+section: utils
+priority: optional
+maintainer: "secscantool maintainers"
+description: |
+  Multi-language code, dependency, and container vulnerability scanner.
+  Detects a project's language, runs a code-level SAST scan and a
+  dependency vulnerability scan, and (when a Dockerfile is present) builds
+  and scans the container image with Trivy.
+license: MIT
+contents:
+  - src: __BINARY_PATH__
+    dst: /usr/bin/secscantool
+    file_info:
+      mode: 0755

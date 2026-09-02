@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  secscantool Windows installer (WiX Toolset v4/v5 syntax).
+
+  This can only be BUILT and TESTED on Windows -- the WiX compiler (wix.exe)
+  does not run on macOS/Linux. It has not been run end-to-end; it was
+  authored against the current WiX v4/v5 schema and reviewed for
+  correctness, but treat it as unverified until built and installed once
+  on a real Windows machine.
+
+  Build (on Windows, after installing WiX: `dotnet tool install --global wix`):
+      make msi version=1.1.1
+  which runs:
+      wix build packaging/secscantool.wxs -d Version=1.1.1 ^
+          -d ExePath=dist/secscantool-windows-amd64.exe -arch x64 ^
+          -o dist/secscantool_1.1.1_amd64.msi
+
+  UpgradeCode below is a fixed, permanent identifier for "secscantool" as a
+  product -- it must NEVER change between releases (that's what lets MSI
+  recognize a newer version as an upgrade of the same product rather than a
+  separate install). The Component Guid is likewise fixed for the same
+  reason. Both were generated once with `uuidgen` and should be treated as
+  constants from here on.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package
+      name="secscantool"
+      Manufacturer="secscantool"
+      Version="$(var.Version)"
+      UpgradeCode="2439775E-12C8-423D-958E-4B97C5089EA7"
+      Scope="perMachine">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of secscantool is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="secscantool">
+        <Component Id="MainExecutable" Guid="27336019-2727-4238-A525-115A05EED44C">
+          <File Id="SecscantoolExe" Source="$(var.ExePath)" Name="secscantool.exe" KeyPath="yes" />
+          <!-- Adds the install directory to the machine PATH, so `secscantool`
+               works from any terminal without the user doing it manually. -->
+          <Environment Id="AddToPath" Name="PATH" Value="[INSTALLFOLDER]"
+                       Permanent="no" Part="last" Action="set" System="yes" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+
+    <Feature Id="MainFeature" Title="secscantool" Level="1">
+      <ComponentRef Id="MainExecutable" />
+    </Feature>
+  </Package>
+</Wix>

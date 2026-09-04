@@ -1,4 +1,4 @@
-# secscantool
+# Secscantool
 
 A single cross-platform CLI with two independent scan modes:
 
